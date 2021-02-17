@@ -1,7 +1,20 @@
 import React from "react";
-
+import classNames from 'classnames'
 import "components/Button.scss";
+import { configure } from "@testing-library/react";
 
 export default function Button(props) {
-   return <></>;
+   const {confirm, danger} = props
+   let buttonClass = classNames("button", {
+      "button--confirm": confirm,
+      "button--danger" : danger     
+   });
+
+   return <button 
+      className={buttonClass} 
+      disabled={props.disabled} 
+      onClick={props.onClick}
+      >
+         {props.children}
+      </button>;
 }
