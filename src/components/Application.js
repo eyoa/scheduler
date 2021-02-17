@@ -9,13 +9,15 @@ export default function Application(props) {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
-    appointments: {}
+    appointments: {},
+    interviewers: {}
   });
 
   useEffect(() => {
-    Promise.all([axios.get('/api/days'), axios.get('/api/appointments')])
+    Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('api/interviewers')])
     .then((response) => {
-      setState(prev => ({...prev, days: response[0].data, appointments: response[1].data}))
+      console.log(response);
+      setState(prev => ({...prev, days: response[0].data, appointments: response[1].data, interviewers: response[2].data}))
     })
     
   },[])
@@ -33,7 +35,8 @@ export default function Application(props) {
 
   const dailyAppointments = getAppointmentsForDay(state, state.day);
 
-  const parsedAppointment = dailyAppointments.map(appointment => {
+  const schedule = dailyAppointments.map(appointment => {
+    // const interview = getInterview(state, appointment.interview);
     return <Appointment key={appointment.id} {...appointment}/>
   })
 
@@ -61,7 +64,7 @@ export default function Application(props) {
 
       </section>
       <section className="schedule">
-        {parsedAppointment}
+        {schedule}
       </section>
     </main>
   );
