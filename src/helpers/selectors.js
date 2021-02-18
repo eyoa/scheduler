@@ -20,3 +20,17 @@ export function getInterview (state, interview){
   }
   return interviewObj;
 }
+
+
+export function getInterviewersForDay (state, day){
+  const interviewersForDay = [];
+  const selectedDay = state.days.filter(entry => entry.name === day);
+
+  if (selectedDay.length > 0){
+    for (const id of selectedDay[0].interviewers){
+      interviewersForDay.push(state.interviewers[id]);
+    }
+  }
+
+  return interviewersForDay;
+}
