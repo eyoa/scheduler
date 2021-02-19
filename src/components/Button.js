@@ -1,7 +1,6 @@
 import React from "react";
 import classNames from 'classnames'
 import "components/Button.scss";
-import { configure } from "@testing-library/react";
 
 export default function Button(props) {
    const {confirm, danger} = props

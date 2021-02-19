@@ -7,7 +7,6 @@ import {getAppointmentsForDay, getInterviewersForDay, getInterview} from 'helper
 
 
 export default function Application(props) { 
-  console.log("application re-render");
   const [state, setState] = useState({
     day: "Monday",
     days: [],
@@ -55,6 +54,28 @@ export default function Application(props) {
 
   }
 
+  function cancelInterview(id) {
+    
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    };
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+    return axios.delete(`/api/appointments/${id}`)
+    .then (response => {
+      console.log("got response", response);
+      if (response.status === 204){
+        setState({...state, appointments})
+      }
+    })
+    .catch(e => console.log(e)) 
+  }
+
+
+
   const schedule = dailyAppointments.map(appointment => {
     const interview = getInterview(state, appointment.interview);
     return (
@@ -65,6 +86,7 @@ export default function Application(props) {
         interview={interview} 
         interviewers={[...interviewers]}
         bookInterview={bookInterview}
+        cancelInterview={cancelInterview}
       />
     )
   })
