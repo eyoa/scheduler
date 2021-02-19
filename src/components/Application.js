@@ -6,18 +6,20 @@ import {getAppointmentsForDay, getInterviewersForDay, getInterview} from 'helper
 import useApplicationData from '../hooks/useApplicationData'
 
 
+
 export default function Application(props) { 
   const {
     state,
     setDay,
     bookInterview,
-    cancelInterview
+    cancelInterview,
+    updateSpots
   } = useApplicationData();
   
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const interviewers = getInterviewersForDay(state, state.day);
-
-
+ 
+  
   const schedule = dailyAppointments.map(appointment => {
     const interview = getInterview(state, appointment.interview);
     return (
@@ -29,9 +31,13 @@ export default function Application(props) {
         interviewers={[...interviewers]}
         bookInterview={bookInterview}
         cancelInterview={cancelInterview}
+        updateSpots={updateSpots}
       />
     )
   })
+
+  // To mark the end the day 
+  schedule.push(<Appointment id="last" time="5pm" />)
 
   return (
     <main className="layout">

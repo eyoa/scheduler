@@ -9,7 +9,6 @@ export default function useVisualMode(initial) {
     if(replace){
       transHistory.pop();
     }
-    console.log(transHistory);
     setHistory([...transHistory, mode]);
     setMode(mode);
   }
