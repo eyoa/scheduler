@@ -19,6 +19,7 @@ const reducer = (state, action) => {
     console.log("state setting app data", state);
     return {...state, days, appointments, interviewers}
   }
+
   if (action.type === SET_INTERVIEW){
     const days = action.days;
     const appointments = action.appointments;
@@ -53,16 +54,25 @@ export default function useApplicationData() {
     dispatch({type: SET_DAY, value: day})
   }
 
-  const updateSpots = function(change){
+  const updateSpots = function(appointId, appointment){
+    // get the specific day array to update the spots number in
     const [dayArr] = state.days.filter(entry => entry.name === state.day)
     const dayIndex = dayArr.id - 1;
-    let newSpots; 
+    const appArr = [...dayArr.appointments]  
 
-    if (change === "add"){
-      newSpots = dayArr.spots + 1;
-    }else if (change === "remove"){
-      newSpots = dayArr.spots - 1;
-    }
+    // get the appointments with our changes
+    const newestAppoint = {...state.appointments}
+    newestAppoint[appointId] = appointment
+
+    // count the spots with that updated appointments info
+    const newSpots = appArr.reduce((count, appId) => {
+      if (newestAppoint[appId]["interview"] !== null){
+        count -= 1;
+      }
+      return count;
+    }, 5)
+    
+    // format back into a days array to set the state
     const newday = {
       ...dayArr,
       spots: newSpots
@@ -84,10 +94,10 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-    return axios.put(`/api/appointments/${id}`, {interview})
+    return axios.put(`/api/appointments/${id}`, appointment)
     .then(response => {
       if(response.status === 204){
-        const days = updateSpots("remove");
+        const days = updateSpots(id, appointment);
         dispatch({type: SET_INTERVIEW, days, appointments})
       }
     })
@@ -106,7 +116,7 @@ export default function useApplicationData() {
     return axios.delete(`/api/appointments/${id}`)
     .then (response => {
       if (response.status === 204){
-        const days = updateSpots("add");
+        const days = updateSpots(id, appointment);
         dispatch({type: SET_INTERVIEW, days, appointments})
       }
     })

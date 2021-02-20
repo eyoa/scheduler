@@ -39,7 +39,7 @@ export default function Application(props) {
   })
 
   // To mark the end the day 
-  schedule.push(<Appointment id="last" time="5pm" />)
+  schedule.push(<Appointment key="last" time="5pm" />)
 
   return (
     <main className="layout">
