@@ -16,12 +16,14 @@ export default function Application(props) {
     updateSpots
   } = useApplicationData();
   
+  console.log("re-renders and state check in application", state);
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const interviewers = getInterviewersForDay(state, state.day);
  
   
   const schedule = dailyAppointments.map(appointment => {
     const interview = getInterview(state, appointment.interview);
+    console.log();
     return (
       <Appointment 
         key={appointment.id} 

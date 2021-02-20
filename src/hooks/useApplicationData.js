@@ -1,28 +1,56 @@
-import {useState, useEffect, useReducer} from 'react';
+import {useEffect, useReducer} from 'react';
 import axios from 'axios';
 
-export default function useApplicationData() {
+const SET_DAY = "SET_DAY";
+const SET_APP_DATA = "SET_APP_DATA";
+const SET_INTERVIEW = "SET_INTERVIEW";
 
-  const [state, setState] = useState({
+
+const reducer = (state, action) => {
+  if (action.type === SET_DAY){
+    const day = action.value;
+    return {...state, day}
+  }
+  if (action.type === SET_APP_DATA){
+    console.log(action);
+    const days = action.days;
+    const appointments = action.appointments;
+    const interviewers = action.interviewers;
+    console.log("state setting app data", state);
+    return {...state, days, appointments, interviewers}
+  }
+  if (action.type === SET_INTERVIEW){
+    const days = action.days;
+    const appointments = action.appointments;
+    return {...state, days, appointments}
+  }
+  return state;
+}
+
+export default function useApplicationData() {
+  const initial = {
     day: "Monday",
     days: [],
     appointments: {},
     interviewers: {}
-  });
-
+  }
+  const [state, dispatch] = useReducer(reducer, initial);
 
 
   useEffect(() => {
     Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('api/interviewers')])
     .then((response) => {
-      setState(prev => ({...prev, days: response[0].data, appointments: response[1].data, interviewers: response[2].data}))
+      const days = response[0].data;
+      const appointments = response[1].data;
+      const interviewers = response[2].data;
+      dispatch({type: SET_APP_DATA, days, appointments, interviewers})
     })
     
   },[])
 
 
   const setDay = function(day){
-    setState({...state, day})
+    dispatch({type: SET_DAY, value: day})
   }
 
   const updateSpots = function(change){
@@ -60,8 +88,7 @@ export default function useApplicationData() {
     .then(response => {
       if(response.status === 204){
         const days = updateSpots("remove");
-        
-        setState({...state, days, appointments})
+        dispatch({type: SET_INTERVIEW, days, appointments})
       }
     })
   }
@@ -80,7 +107,7 @@ export default function useApplicationData() {
     .then (response => {
       if (response.status === 204){
         const days = updateSpots("add");
-        setState({...state, days, appointments})
+        dispatch({type: SET_INTERVIEW, days, appointments})
       }
     })
   }
