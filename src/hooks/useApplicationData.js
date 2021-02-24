@@ -1,29 +1,10 @@
 import { useEffect, useReducer } from "react";
 import axios from "axios";
-
-const SET_DAY = "SET_DAY";
-const SET_APP_DATA = "SET_APP_DATA";
-const SET_INTERVIEW = "SET_INTERVIEW";
-
-const reducer = (state, action) => {
-  if (action.type === SET_DAY) {
-    const day = action.value;
-    return { ...state, day };
-  }
-  if (action.type === SET_APP_DATA) {
-    const days = action.days;
-    const appointments = action.appointments;
-    const interviewers = action.interviewers;
-    return { ...state, days, appointments, interviewers };
-  }
-
-  if (action.type === SET_INTERVIEW) {
-    const days = action.days;
-    const appointments = action.appointments;
-    return { ...state, days, appointments };
-  }
-  return state;
-};
+import reducer, {
+  SET_DAY,
+  SET_APP_DATA,
+  SET_INTERVIEW,
+} from "../reducers/application";
 
 export default function useApplicationData() {
   const initial = {
