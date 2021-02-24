@@ -70,6 +70,9 @@ export default function useApplicationData() {
     };
 
     setSocket(ws);
+    return () => {
+      ws.close();
+    };
   }, []);
 
   useEffect(() => {

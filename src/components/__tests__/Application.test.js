@@ -87,7 +87,7 @@ describe("Applicaiton", () => {
       queryByText(day, "Monday")
     );
 
-    expect(getByText(day, "2 spots remaining")).toBeInTheDocument();
+    expect(queryByText(day, "1 spot remaining")).toBeInTheDocument();
   });
 
   it("loads data, edits an interview and keeps the spots remaining for Monday the same", async () => {
