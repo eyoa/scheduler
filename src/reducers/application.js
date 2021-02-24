@@ -1,6 +1,6 @@
-const SET_DAY = "SET_DAY";
-const SET_APP_DATA = "SET_APP_DATA";
-const SET_INTERVIEW = "SET_INTERVIEW";
+const SET_DAY = 'SET_DAY';
+const SET_APP_DATA = 'SET_APP_DATA';
+const SET_INTERVIEW = 'SET_INTERVIEW';
 
 export default function reducer(state, action) {
   if (action.type === SET_DAY) {

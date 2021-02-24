@@ -1,26 +1,26 @@
-import { useEffect, useReducer, useState, useCallback } from "react";
-import axios from "axios";
+import { useEffect, useReducer, useState, useCallback } from 'react';
+import axios from 'axios';
 import reducer, {
   SET_DAY,
   SET_APP_DATA,
-  SET_INTERVIEW,
-} from "../reducers/application";
+  SET_INTERVIEW
+} from '../reducers/application';
 
 export default function useApplicationData() {
   const initial = {
-    day: "Monday",
+    day: 'Monday',
     days: [],
     appointments: {},
-    interviewers: {},
+    interviewers: {}
   };
   const [state, dispatch] = useReducer(reducer, initial);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     Promise.all([
-      axios.get("/api/days"),
-      axios.get("/api/appointments"),
-      axios.get("/api/interviewers"),
+      axios.get('/api/days'),
+      axios.get('/api/appointments'),
+      axios.get('/api/interviewers')
     ]).then((response) => {
       const days = response[0].data;
       const appointments = response[1].data;
@@ -32,7 +32,7 @@ export default function useApplicationData() {
   const updateSpots = useCallback(
     function (appointId, updatedAppointment) {
       console.log(
-        "updateSpots being called with ",
+        'updateSpots being called with ',
         appointId,
         updatedAppointment
       );
@@ -49,7 +49,7 @@ export default function useApplicationData() {
 
       // count the spots with that updated appointments info
       const newSpots = appArr.reduce((count, appId) => {
-        if (newestAppoint[appId]["interview"] === null) {
+        if (newestAppoint[appId]['interview'] === null) {
           count += 1;
         }
         return count;
@@ -58,7 +58,7 @@ export default function useApplicationData() {
       // format back into a days array to set the state
       const newday = {
         ...day,
-        spots: newSpots,
+        spots: newSpots
       };
       const days = [...state.days];
       days[dayIndex] = newday;
@@ -73,20 +73,20 @@ export default function useApplicationData() {
       if (interview) {
         result.appointment = {
           ...state.appointments[id],
-          interview: { ...interview },
+          interview: { ...interview }
         };
       } else {
         result.appointment = {
           ...state.appointments[id],
-          interview: null,
+          interview: null
         };
       }
 
       result.appointments = {
         ...state.appointments,
-        [id]: result.appointment,
+        [id]: result.appointment
       };
-      console.log("results for", result);
+      console.log('results for', result);
       return result;
     },
     [state]
@@ -96,7 +96,7 @@ export default function useApplicationData() {
     const ws = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
     ws.onopen = () => {
-      ws.send("ping");
+      ws.send('ping');
     };
 
     setSocket(ws);
