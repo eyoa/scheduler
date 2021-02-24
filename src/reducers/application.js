@@ -8,7 +8,7 @@ export default function reducer(state, action) {
     return { ...state, day };
   }
   if (action.type === SET_APP_DATA) {
-    const days = action.days;
+    const days = [...action.days];
     const appointments = action.appointments;
     const interviewers = action.interviewers;
     return { ...state, days, appointments, interviewers };

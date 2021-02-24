@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState, useCallback } from "react";
 import axios from "axios";
 import reducer, {
   SET_DAY,
@@ -14,6 +14,7 @@ export default function useApplicationData() {
     interviewers: {},
   };
   const [state, dispatch] = useReducer(reducer, initial);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -28,48 +29,97 @@ export default function useApplicationData() {
     });
   }, []);
 
+  const updateSpots = useCallback(
+    function (appointId, updatedAppointment) {
+      const day = state.days.find((entry) =>
+        entry.appointments.includes(appointId)
+      );
+
+      const dayIndex = day.id - 1;
+      const appArr = [...day.appointments];
+
+      // get the appointments with our changes
+      const newestAppoint = { ...state.appointments };
+      newestAppoint[appointId] = updatedAppointment;
+
+      // count the spots with that updated appointments info
+      const newSpots = appArr.reduce((count, appId) => {
+        if (newestAppoint[appId]["interview"] === null) {
+          count += 1;
+        }
+        return count;
+      }, 0);
+
+      // format back into a days array to set the state
+      const newday = {
+        ...day,
+        spots: newSpots,
+      };
+      const days = [...state.days];
+      days[dayIndex] = newday;
+      return days;
+    },
+    [state]
+  );
+
+  useEffect(() => {
+    const ws = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
+
+    ws.onopen = () => {
+      ws.send("ping");
+    };
+
+    setSocket(ws);
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.onmessage = (event) => {
+        const wsData = JSON.parse(event.data);
+        if (wsData.type === SET_INTERVIEW) {
+          const id = wsData.id;
+          const interview = wsData.interview;
+
+          const { appointments } = formatAppointmentsChange(id, interview);
+
+          const days = updateSpots(id, appointments);
+          dispatch({ type: SET_INTERVIEW, days, appointments });
+        }
+      };
+    }
+  }, [socket, updateSpots]);
+
   const setDay = function (day) {
     dispatch({ type: SET_DAY, value: day });
   };
 
-  const updateSpots = function (appointId, updatedAppointment) {
-    // get the specific day array to update the spots number in
-    const [dayArr] = state.days.filter((entry) => entry.name === state.day);
-    const dayIndex = dayArr.id - 1;
-    const appArr = [...dayArr.appointments];
+  function formatAppointmentsChange(id, interview = null) {
+    const result = { appointment: {}, appointments: {} };
+    if (interview) {
+      result.appointment = {
+        ...state.appointments[id],
+        interview: { ...interview },
+      };
+    } else {
+      result.appointment = {
+        ...state.appointments[id],
+        interview: null,
+      };
+    }
 
-    // get the appointments with our changes
-    const newestAppoint = { ...state.appointments };
-    newestAppoint[appointId] = updatedAppointment;
-
-    // count the spots with that updated appointments info
-    const newSpots = appArr.reduce((count, appId) => {
-      if (newestAppoint[appId]["interview"] === null) {
-        count += 1;
-      }
-      return count;
-    }, 0);
-
-    // format back into a days array to set the state
-    const newday = {
-      ...dayArr,
-      spots: newSpots,
+    result.appointments = {
+      ...state.appointments,
+      [id]: result.appointment,
     };
-    const days = [...state.days];
-    days[dayIndex] = newday;
-
-    return days;
-  };
+    console.log(result);
+    return result;
+  }
 
   function bookInterview(id, interview) {
-    const appointment = {
-      ...state.appointments[id],
-      interview: { ...interview },
-    };
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment,
-    };
+    const { appointment, appointments } = formatAppointmentsChange(
+      id,
+      interview
+    );
 
     return axios
       .put(`/api/appointments/${id}`, appointment)
@@ -82,22 +132,15 @@ export default function useApplicationData() {
   }
 
   function cancelInterview(id) {
-    const canceledAppointment = {
-      ...state.appointments[id],
-      interview: null,
-    };
-    const appointments = {
-      ...state.appointments,
-      [id]: canceledAppointment,
-    };
+    const { appointments } = formatAppointmentsChange(id);
 
     return axios.delete(`/api/appointments/${id}`).then((response) => {
       if (response.status === 204) {
-        const days = updateSpots(id, canceledAppointment);
+        const days = updateSpots(id, appointments);
         dispatch({ type: SET_INTERVIEW, days, appointments });
       }
     });
   }
 
-  return { state, setDay, bookInterview, cancelInterview, updateSpots };
+  return { state, setDay, bookInterview, cancelInterview };
 }
