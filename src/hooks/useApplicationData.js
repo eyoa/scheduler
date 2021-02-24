@@ -31,6 +31,11 @@ export default function useApplicationData() {
 
   const updateSpots = useCallback(
     function (appointId, updatedAppointment) {
+      console.log(
+        "updateSpots being called with ",
+        appointId,
+        updatedAppointment
+      );
       const day = state.days.find((entry) =>
         entry.appointments.includes(appointId)
       );
@@ -62,6 +67,31 @@ export default function useApplicationData() {
     [state]
   );
 
+  const formatAppointmentsChange = useCallback(
+    function (id, interview = null) {
+      const result = { appointment: {}, appointments: {} };
+      if (interview) {
+        result.appointment = {
+          ...state.appointments[id],
+          interview: { ...interview },
+        };
+      } else {
+        result.appointment = {
+          ...state.appointments[id],
+          interview: null,
+        };
+      }
+
+      result.appointments = {
+        ...state.appointments,
+        [id]: result.appointment,
+      };
+      console.log("results for", result);
+      return result;
+    },
+    [state]
+  );
+
   useEffect(() => {
     const ws = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
@@ -83,40 +113,21 @@ export default function useApplicationData() {
           const id = wsData.id;
           const interview = wsData.interview;
 
-          const { appointments } = formatAppointmentsChange(id, interview);
+          const { appointment, appointments } = formatAppointmentsChange(
+            id,
+            interview
+          );
 
-          const days = updateSpots(id, appointments);
+          const days = updateSpots(id, appointment);
           dispatch({ type: SET_INTERVIEW, days, appointments });
         }
       };
     }
-  }, [socket, updateSpots]);
+  }, [socket, updateSpots, formatAppointmentsChange]);
 
   const setDay = function (day) {
     dispatch({ type: SET_DAY, value: day });
   };
-
-  function formatAppointmentsChange(id, interview = null) {
-    const result = { appointment: {}, appointments: {} };
-    if (interview) {
-      result.appointment = {
-        ...state.appointments[id],
-        interview: { ...interview },
-      };
-    } else {
-      result.appointment = {
-        ...state.appointments[id],
-        interview: null,
-      };
-    }
-
-    result.appointments = {
-      ...state.appointments,
-      [id]: result.appointment,
-    };
-    console.log(result);
-    return result;
-  }
 
   function bookInterview(id, interview) {
     const { appointment, appointments } = formatAppointmentsChange(
@@ -129,17 +140,29 @@ export default function useApplicationData() {
       .then((response) => {
         if (response.status === 204) {
           const days = updateSpots(id, appointment);
+          // console.log("spots updating with ", id, appointment);
+          // console.log(
+          //   "book interview updating state with ",
+          //   days,
+          //   appointments
+          // );
           dispatch({ type: SET_INTERVIEW, days, appointments });
         }
       });
   }
 
   function cancelInterview(id) {
-    const { appointments } = formatAppointmentsChange(id);
+    const { appointment, appointments } = formatAppointmentsChange(id);
 
     return axios.delete(`/api/appointments/${id}`).then((response) => {
       if (response.status === 204) {
-        const days = updateSpots(id, appointments);
+        const days = updateSpots(id, appointment);
+        // console.log("spots updating with ", id, appointment);
+        // console.log(
+        //   "deleting interview updating state with ",
+        //   days,
+        //   appointments
+        // );
         dispatch({ type: SET_INTERVIEW, days, appointments });
       }
     });
