@@ -69,17 +69,11 @@ export default function useApplicationData() {
   const formatAppointmentsChange = useCallback(
     function (id, interview = null) {
       const result = { appointment: {}, appointments: {} };
-      if (interview) {
-        result.appointment = {
-          ...state.appointments[id],
-          interview: { ...interview }
-        };
-      } else {
-        result.appointment = {
-          ...state.appointments[id],
-          interview: null
-        };
-      }
+
+      result.appointment = {
+        ...state.appointments[id],
+        interview: interview ? { ...interview } : null
+      };
 
       result.appointments = {
         ...state.appointments,
