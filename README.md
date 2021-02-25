@@ -14,10 +14,30 @@ It allows users to book interviews in timeslots on different days.
 
 Install dependencies with `npm install`.
 
+## Dependencies
+
+- axios
+- react (v 16.9.0)
+- react-dom (v 16.9.0)
+- react-scripts
+- classnames
+- normalize.css
+
+## Dev Dependencies
+
+- babel
+- storybook
+- @testing-library/jest-dom
+- @testing-library/react
+- @testing-library/react-hooks
+- react-test-renderer
+- node-sass
+- prop-types
+
 ## Dependencies notes
 
 - Note the react version is : react v 16.9.0
-- react-test-renderer is a matching version
+- react-dom, react-test-renderer should be matching versions
 
 ## works with the provided scheduler-api
 
@@ -25,12 +45,12 @@ Install dependencies with `npm install`.
 
 # Features
 
-- Allows students to book interviews with a mentor
+- Allows students to book/edit/delete interviews with a mentor
 - appointments can be made between 12 - 5 pm for each day of the week
 - information is persistent on the API server using PostgreSQL database
 - Test Driven Development with Jest
-- testing with Cypress
-- implemented web sockets for updating information with multiple users
+- Testing with Cypress
+- Implemented web sockets for updating information with multiple users
 
 # Technical Specifications
 
