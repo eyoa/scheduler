@@ -22,11 +22,13 @@ export default function useApplicationData() {
       axios.get('/api/days'),
       axios.get('/api/appointments'),
       axios.get('/api/interviewers')
-    ]).then((response) => {
-      const days = response[0].data;
-      const appointments = response[1].data;
-      const interviewers = response[2].data;
-      dispatch({ type: SET_APP_DATA, days, appointments, interviewers });
+    ]).then(([days, appointments, interviewers]) => {
+      dispatch({
+        type: SET_APP_DATA,
+        days: days.data,
+        appointments: appointments.data,
+        interviewers: interviewers.data
+      });
     });
   }, []);
 
