@@ -3,10 +3,10 @@ const SET_APP_DATA = 'SET_APP_DATA';
 const SET_INTERVIEW = 'SET_INTERVIEW';
 
 export default function reducer(state, action) {
-  if (action.type === SET_DAY) {
-    const day = action.value;
-    return { ...state, day };
-  }
+  // if (action.type === SET_DAY) {
+  //   const day = action.value;
+  //   return { ...state, day };
+  // }
   if (action.type === SET_APP_DATA) {
     const days = [...action.days];
     const appointments = action.appointments;
