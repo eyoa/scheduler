@@ -7,12 +7,12 @@ export default function reducer(state, action) {
   //   const day = action.value;
   //   return { ...state, day };
   // }
-  if (action.type === SET_APP_DATA) {
-    const days = [...action.days];
-    const appointments = action.appointments;
-    const interviewers = action.interviewers;
-    return { ...state, days, appointments, interviewers };
-  }
+  // if (action.type === SET_APP_DATA) {
+  //   const days = [...action.days];
+  //   const appointments = action.appointments;
+  //   const interviewers = action.interviewers;
+  //   return { ...state, days, appointments, interviewers };
+  // }
 
   if (action.type === SET_INTERVIEW) {
     const days = action.days;
