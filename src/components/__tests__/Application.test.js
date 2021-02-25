@@ -86,7 +86,6 @@ describe('Applicaiton', () => {
     const day = getAllByTestId(container, 'day').find((day) =>
       queryByText(day, 'Monday')
     );
-    console.log(prettyDOM(day));
     expect(queryByText(day, '2 spots remaining')).toBeInTheDocument();
   });
 
@@ -152,7 +151,7 @@ describe('Applicaiton', () => {
 
   it('shows the delete error when failing to delete an existing appointment', async () => {
     axios.delete.mockRejectedValueOnce();
-    const { container, debug } = render(<Application />);
+    const { container } = render(<Application />);
 
     await waitForElement(() => getByText(container, 'Archie Cohen'));
 

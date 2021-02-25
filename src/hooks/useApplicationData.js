@@ -16,6 +16,7 @@ export default function useApplicationData() {
   const [state, dispatch] = useReducer(reducer, initial);
   const [socket, setSocket] = useState(null);
 
+  // Grab info from database and put it in the state
   useEffect(() => {
     Promise.all([
       axios.get('/api/days'),
@@ -29,26 +30,22 @@ export default function useApplicationData() {
     });
   }, []);
 
+  // updateSpots count used by websockets
   const updateSpots = useCallback(
     function (appointId, updatedAppointment) {
-      console.log(
-        'updateSpots being called with ',
-        appointId,
-        updatedAppointment
-      );
       const day = state.days.find((entry) =>
         entry.appointments.includes(appointId)
       );
 
       const dayIndex = day.id - 1;
-      const appArr = [...day.appointments];
+      const newAppointmentsArray = [...day.appointments];
 
       // get the appointments with our changes
       const newestAppoint = { ...state.appointments };
       newestAppoint[appointId] = updatedAppointment;
 
       // count the spots with that updated appointments info
-      const newSpots = appArr.reduce((count, appId) => {
+      const newSpots = newAppointmentsArray.reduce((count, appId) => {
         if (newestAppoint[appId]['interview'] === null) {
           count += 1;
         }
@@ -60,6 +57,7 @@ export default function useApplicationData() {
         ...day,
         spots: newSpots
       };
+
       const days = [...state.days];
       days[dayIndex] = newday;
       return days;
@@ -67,6 +65,7 @@ export default function useApplicationData() {
     [state]
   );
 
+  // helper for updating the interview information and formatting for easy state update
   const formatAppointmentsChange = useCallback(
     function (id, interview = null) {
       const result = { appointment: {}, appointments: {} };
@@ -86,12 +85,12 @@ export default function useApplicationData() {
         ...state.appointments,
         [id]: result.appointment
       };
-      console.log('results for', result);
       return result;
     },
     [state]
   );
 
+  // establish websocket connection
   useEffect(() => {
     const ws = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
@@ -105,6 +104,7 @@ export default function useApplicationData() {
     };
   }, []);
 
+  // the websocket listener
   useEffect(() => {
     if (socket) {
       socket.onmessage = (event) => {
@@ -140,12 +140,6 @@ export default function useApplicationData() {
       .then((response) => {
         if (response.status === 204) {
           const days = updateSpots(id, appointment);
-          // console.log("spots updating with ", id, appointment);
-          // console.log(
-          //   "book interview updating state with ",
-          //   days,
-          //   appointments
-          // );
           dispatch({ type: SET_INTERVIEW, days, appointments });
         }
       });
@@ -157,12 +151,6 @@ export default function useApplicationData() {
     return axios.delete(`/api/appointments/${id}`).then((response) => {
       if (response.status === 204) {
         const days = updateSpots(id, appointment);
-        // console.log("spots updating with ", id, appointment);
-        // console.log(
-        //   "deleting interview updating state with ",
-        //   days,
-        //   appointments
-        // );
         dispatch({ type: SET_INTERVIEW, days, appointments });
       }
     });

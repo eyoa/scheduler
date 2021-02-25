@@ -25,6 +25,7 @@ export default function Appointment(props) {
     props.interview ? SHOW : EMPTY
   );
 
+  // for when state changes by websocket data prevents error when there's no interview
   useEffect(() => {
     if (props.interview && mode === EMPTY) {
       transition(SHOW);
@@ -45,7 +46,7 @@ export default function Appointment(props) {
       .then(() => {
         transition(SHOW);
       })
-      .catch((error) => transition(ERROR_SAVE, true));
+      .catch(() => transition(ERROR_SAVE, true));
   }
 
   function deleteInterview() {
@@ -53,7 +54,7 @@ export default function Appointment(props) {
     props
       .cancelInterview(props.id)
       .then(() => transition(EMPTY))
-      .catch((error) => transition(ERROR_DELETE, true));
+      .catch(() => transition(ERROR_DELETE, true));
   }
 
   return (

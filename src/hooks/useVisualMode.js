@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+// tracks and changes the view for appointments
 export default function useVisualMode(initial) {
   const [mode, setMode] = useState(initial);
   const [history, setHistory] = useState([initial]);
