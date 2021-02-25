@@ -19,21 +19,21 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: npm test
 
-deploy:
-  machine:
-    enabled: true
+  deploy:
+    machine:
+      enabled: true
 
-  working_directory: ~/client
+    working_directory: ~/client
 
-  steps:
-    - add_ssh_keys:
-        fingerprints:
-          - 'df:c0:69:32:80:2e:98:84:13:e1:13:51:91:9f:52:7e'
-    - checkout
-    - run:
-        name: Push Master to Production
-        command: |
-          git push https://github.com/eyoa/scheduler.git master:production
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'df:c0:69:32:80:2e:98:84:13:e1:13:51:91:9f:52:7e'
+      - checkout
+      - run:
+          name: Push Master to Production
+          command: |
+            git push https://github.com/eyoa/scheduler.git master:production
 
 workflows:
   version: 2
